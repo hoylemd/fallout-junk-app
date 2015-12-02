@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    <form action="{{ url_for('add_junk') }}" method=post class=add-entry>
+      <dl>
+        <dt>Name:
+        <dd><input type=text size=64 name=name>
+        <dt>Value:
+        <dd><input type=text size=16 name=value>
+        <dt>Weight:
+        <dd><input type=text size=16 name=weight>
+        <dt>Components Value:
+        <dd><input type=text size=16 name=components_value>
+        <dt>Components Weight:
+        <dd><input type=text size=16 name=components_weight>
+        <dt>Craftable?
+        <dd><input type=checkbox name=craftable>
+        <dt>Used in Crafting?
+        <dd><input type=checkbox name=used_for_crafting>
+        <dd><input type=submit value=Add>
+      </dl>
+    </form>
+  {% endif %}
+  <table class=entries>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Slug</th>
+        <th>Value</th>
+        <th>Weight</th>
+        <th>Value-Weight Ratio</th>
+        <th>Components Value</th>
+        <th>Components Weight</th>
+        <th>Components Value-Weight Ratio</th>
+        <th>Craftable</th>
+        <th>Used in crafting</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in entries %}
+      <tr>
+        <td>{{ entry.name }}</td>
+        <td>{{ entry.slug }}</td>
+        <td>{{ entry.value }}</td>
+        <td>{{ entry.weight }}</td>
+        <td>{{ entry.ratio }}</td>
+        <td>{{ entry.components_value }}</td>
+        <td>{{ entry.components_weight }}</td>
+        <td>{{ entry.components_ratio }}</td>
+        <td>{{ entry.craftable }}</td>
+        <td>{{ entry.used_for_crafting }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan=10><em>Unbelievable.  No entries here so far</em></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

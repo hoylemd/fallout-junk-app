@@ -40,7 +40,7 @@ def after_request(exception):
 
 @app.route('/')
 def index():
-    return redirect(url_for('show_components'))
+    return redirect(url_for(''))
 
 
 @app.route('/components')
@@ -69,8 +69,52 @@ def add_component():
             float(request.form['weight'])]
         )
     g.db.commit()
-    flash('Component was successfully created')
+    flash('Component "' + request.form['name'] + '" was successfully created')
     return redirect(url_for('show_components'))
+
+
+@app.route('/junk')
+def show_junk():
+    cursor = g.db.execute('select * from junk order by id desc;')
+    entries = []
+    for row in cursor.fetchall():
+        entry = {
+            'slug': row[1], 'name': row[2], 'value': row[3], 'weight': row[4],
+            'ratio': row[3] / row[4], 'components_value': row[5],
+            'components_weight': row[6], 'components_ratio': row[5] / row[6],
+            'craftable': 'yes' if row[7] else 'no',
+            'used_for_crafting': 'yes' if row[8] else 'no'}
+        entries.append(entry)
+    return render_template('show_junk.html', entries=entries)
+
+
+@app.route('/add_junk', methods=['POST'])
+def add_junk():
+    if not session.get('logged_in'):
+        abort(401)
+    fields = 'slug, name, value, weight, components_value, ' + \
+            'components_weight, craftable, used_for_crafting'
+    query = 'insert into junk (' + fields + ')  values (?, ?, ?, ?, ?, ?, ?, ?)'
+
+    slug = request.form['name'].lower().replace(' ', '_')
+    craftable = 1 if getattr(request.form, 'craftable', 'off') == 'on' else 0
+    used_for_crafting = 1 if getattr(request.form, 'used_for_crafting', 'off') == 'on' else 0
+
+    g.db.execute(
+        query,
+        [
+            slug,
+            request.form['name'],
+            int(request.form['value']),
+            float(request.form['weight']),
+            int(request.form['components_value']),
+            float(request.form['components_weight']),
+            craftable,
+            used_for_crafting
+        ])
+    g.db.commit()
+    flash('Junk "' + request.form['name'] + '" was successfully created')
+    return redirect(url_for('show_junk'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
