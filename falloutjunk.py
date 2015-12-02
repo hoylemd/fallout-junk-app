@@ -50,7 +50,7 @@ def show_components():
     return render_template('show_components.html', entries=entries)
 
 
-@app.route('/add', methods=['POST'])
+@app.route('/add_component', methods=['POST'])
 def add_component():
     if not session.get('logged_in'):
         abort(401)
