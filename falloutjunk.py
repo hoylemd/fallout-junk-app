@@ -1,5 +1,4 @@
 import sqlite3
-from decimal import Decimal
 from flask import Flask, g, render_template, session, abort, request, \
     redirect,  url_for, flash
 from contextlib import closing
@@ -43,7 +42,7 @@ def after_request(exception):
 def show_components():
     cursor = g.db.execute('select * from components order by id desc;')
     entries = []
-    for row in cursor.fetchal():
+    for row in cursor.fetchall():
         entry = {
             'slug': row[0], 'name': row[1], 'value': row[2], 'weight': row[3]}
         entries.append(entry)
@@ -61,7 +60,7 @@ def add_component():
         query,
         [
             slug, request.form['name'], int(request.form['value']),
-            Decimal(request.form['value'])]
+            request.form['value']]
         )
     g.db.commit()
     flash('Component was successfully created')

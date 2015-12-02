@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
   {% if session.logged_in %}
-    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+    <form action="{{ url_for('add_component') }}" method=post class=add-entry>
       <dl>
         <dt>Name:
         <dd><input type=text size=64 name=name>
@@ -9,7 +9,7 @@
         <dd><input type=text size=16 name=value>
         <dt>Weight:
         <dd><input type=text size=16 name=weight>
-        <dd><input type=submit value=Share>
+        <dd><input type=submit value=Add>
       </dl>
     </form>
   {% endif %}
@@ -30,7 +30,7 @@
         <td>{{ entry.slug|safe }}</td>
         <td>{{ entry.value }}</td>
         <td>{{ entry.weight }}</td>
-        <td>{{ (entry.value) / entry.weight) }}</td>
+        <td>{{ 0.5 }}</td>
       </tr>
       {% else %}
       <tr>
