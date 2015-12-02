@@ -44,7 +44,8 @@ def show_components():
     entries = []
     for row in cursor.fetchall():
         entry = {
-            'slug': row[0], 'name': row[1], 'value': row[2], 'weight': row[3]}
+            'slug': row[1], 'name': row[2], 'value': row[3], 'weight': row[4],
+            'ratio': row[3] / row[4]}
         entries.append(entry)
     return render_template('show_components.html', entries=entries)
 
@@ -60,7 +61,7 @@ def add_component():
         query,
         [
             slug, request.form['name'], int(request.form['value']),
-            request.form['value']]
+            float(request.form['weight'])]
         )
     g.db.commit()
     flash('Component was successfully created')
