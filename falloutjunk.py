@@ -39,6 +39,11 @@ def after_request(exception):
 
 
 @app.route('/')
+def index():
+    return redirect(url_for('show_components'))
+
+
+@app.route('/components')
 def show_components():
     cursor = g.db.execute('select * from components order by id desc;')
     entries = []
