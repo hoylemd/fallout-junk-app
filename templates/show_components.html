@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+      <dl>
+        <dt>Name:
+        <dd><input type=text size=64 name=name>
+        <dt>Value:
+        <dd><input type=text size=16 name=value>
+        <dt>Weight:
+        <dd><input type=text size=16 name=weight>
+        <dd><input type=submit value=Share>
+      </dl>
+    </form>
+  {% endif %}
+  <table class=entries>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Slug</th>
+        <th>Value</th>
+        <th>Weight</th>
+        <th>Value-Weight Ratio</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in entries %}
+      <tr>
+        <td>{{ entry.name }}</td>
+        <td>{{ entry.slug|safe }}</td>
+        <td>{{ entry.value }}</td>
+        <td>{{ entry.weight }}</td>
+        <td>{{ (entry.value) / entry.weight) }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan=5><em>Unbelievable.  No entries here so far</em></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
