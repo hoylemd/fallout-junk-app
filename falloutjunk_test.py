@@ -37,7 +37,7 @@ class FalloutJunkTestCase(unittest.TestCase):
         assert location_header_points_to(rv, '/junk')
 
     # component tests
-    def test_post_add_component__302_all_fields(self):
+    def test_create_component__302_all_fields(self):
         payload = {
             'name': 'Lead',
             'value': 1,
@@ -47,6 +47,15 @@ class FalloutJunkTestCase(unittest.TestCase):
         rv = self.app.post('/add_component', data=payload)
         assert rv.status == '302 FOUND'
         assert location_header_points_to(rv, '/components')
+
+    def test_create_component__422_missing_name(self):
+        payload = {
+            'value': 1,
+            'weight': 0.3,
+        }
+        self.login('admin', 'buttslol')
+        rv = self.app.post('/add_component', data=payload)
+        assert rv.status == '422 UNPROCESSABLE ENTITY'
 
     def test_get_components__200(self):
         rv = self.app.get('/components')

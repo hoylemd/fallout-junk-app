@@ -36,6 +36,15 @@ def build_select_cursor(table, fields=None, where=None, order_by=None):
     return g.db.execute(query)
 
 
+# validation functions
+def missing_required_fields(form, fields):
+    for field in fields:
+        if field not in form:
+            return True
+    return False
+
+
+# app setup functions
 def connect_db():
     return sqlite3.connect(app.config['DATABASE'])
 
@@ -84,6 +93,8 @@ def show_components():
 def add_component():
     if not session.get('logged_in'):
         abort(401)
+    if missing_required_fields(request.form, ['name', 'value', 'weight']):
+        abort(422)
     slug = request.form['name'].lower().replace(' ', '_')
     fields = ['slug', 'name', 'value', 'weight']
     values = [slug, request.form['name'], int(request.form['value']),
