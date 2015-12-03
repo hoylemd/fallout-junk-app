@@ -30,10 +30,28 @@ class FalloutJunkTestCase(unittest.TestCase):
     def logout(self):
         return self.app.get('/logout', follow_redirects=True)
 
+    # general routing tests
     def test_root__redirects_to_junk(self):
         rv = self.app.get('/')
         assert rv.status == '302 FOUND'
-        assert 'href="/junk"' in rv.data
+        assert location_header_points_to(rv, '/junk')
+
+    # component tests
+    def test_post_add_component__302_all_fields(self):
+        payload = {
+            'name': 'Lead',
+            'value': 1,
+            'weight': 0.3,
+        }
+        self.login('admin', 'buttslol')
+        rv = self.app.post('/add_component', data=payload)
+        assert rv.status == '302 FOUND'
+        assert location_header_points_to(rv, '/components')
+
+    def test_get_components__200(self):
+        rv = self.app.get('/components')
+        assert rv.status == '200 OK'
+        # need to load and check fixtures
 
     def test_get_junk__200_OK(self):
         rv = self.app.get('/junk')
@@ -65,23 +83,7 @@ class FalloutJunkTestCase(unittest.TestCase):
         self.login('admin', 'buttslol')
         rv = self.app.post('/add_junk', data=payload)
         assert rv.status == '302 FOUND'
-        assert get_redirected_path(rv.headers['location']) == '/junk'
-
-    def test_post_add_component__302_all_fields(self):
-        payload = {
-            'name': 'Lead',
-            'value': 1,
-            'weight': 0.3,
-        }
-        self.login('admin', 'buttslol')
-        rv = self.app.post('/add_component', data=payload)
-        assert rv.status == '302 FOUND'
-        assert get_redirected_path(rv.headers['location']) == '/components'
-
-    def test_get_components__200(self):
-        rv = self.app.get('/components')
-        assert rv.status == '200 OK'
-        # need to load and check fixtures
+        assert location_header_points_to(rv, '/junk')
 
     def test_get_junk__200(self):
         rv = self.app.get('/junk')
