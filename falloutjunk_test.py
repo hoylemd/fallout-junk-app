@@ -4,12 +4,13 @@ import unittest
 import tempfile
 
 
-def get_redirected_path(location):
-    return location[location.rfind('/'):]
+def location_header_points_to(response, path):
+    location = response.headers['location']
+    return location[location.rfind('/'):] == path
 
 
 class FalloutJunkTestCase(unittest.TestCase):
-
+    # helper methods
     def setUp(self):
         self.db_fd, falloutjunk.app.config['DATABASE'] = tempfile.mkstemp()
         falloutjunk.app.config['TESTING'] = True
