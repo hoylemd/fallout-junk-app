@@ -19,8 +19,21 @@ def get_flag_from_form(form, key):
 def build_insert_cursor(table, fields, values):
     query = 'insert into ' + table + ' (' + ', '.join(fields) + ') '
     query += 'values (' + ', '.join(['?' for i in values]) + ')'
+    query += ';'
 
     return g.db.execute(query, values)
+
+
+def build_select_cursor(table, fields=None, where=None, order_by=None):
+    query = 'select ' + (', '.join(fields) if fields is not None else '*')
+    query += ' from ' + table
+    if where is not None:
+        query += ' where ' + where
+    if order_by is not None:
+        query += ' order by ' + order_by
+    query += ';'
+
+    return g.db.execute(query)
 
 
 def connect_db():
@@ -57,7 +70,7 @@ def index():
 
 @app.route('/components')
 def show_components():
-    cursor = g.db.execute('select * from components order by id desc;')
+    cursor = build_select_cursor('components', order_by='id desc')
     entries = []
     for row in cursor.fetchall():
         entry = {

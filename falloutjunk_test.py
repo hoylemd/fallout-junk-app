@@ -76,3 +76,8 @@ class FalloutJunkTestCase(unittest.TestCase):
         rv = self.app.post('/add_component', data=payload)
         assert rv.status == '302 FOUND'
         assert get_redirected_path(rv.headers['location']) == '/components'
+
+    def test_get_components__200(self):
+        rv = self.app.get('/components')
+        assert rv.status == '200 OK'
+        # need to load and check fixtures
