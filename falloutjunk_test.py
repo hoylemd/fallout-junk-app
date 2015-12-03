@@ -20,3 +20,7 @@ class FalloutJunkTestCase(unittest.TestCase):
         rv = self.app.get('/')
         assert rv.status == '302 FOUND'
         assert 'href="/junk"' in rv.data
+
+    def test_junk__200_OK(self):
+        rv = self.app.get('/junk')
+        assert rv.status == '200 OK'
