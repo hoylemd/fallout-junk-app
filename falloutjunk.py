@@ -93,8 +93,8 @@ def get_flag_from_form(form, key):
 
 
 def build_insert_cursor(table, fields, values):
-    query = 'insert into (' + ', '.join(fields) + ') ' + \
-            'values (' + ', '.join(['?' for i in fields]) + ')'
+    query = 'insert into ' + table + ' (' + ', '.join(fields) + ') '
+    query += 'values (' + ', '.join(['?' for i in fields]) + ')'
 
     return g.db.execute(query, values)
 
