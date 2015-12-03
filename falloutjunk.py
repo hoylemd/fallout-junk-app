@@ -11,6 +11,18 @@ USERNAME = 'admin'
 PASSWORD = 'buttslol'
 
 
+# Helper functions
+def get_flag_from_form(form, key):
+    return 1 if (key in form) and (form[key] == 'on') else 0
+
+
+def build_insert_cursor(table, fields, values):
+    query = 'insert into ' + table + ' (' + ', '.join(fields) + ') '
+    query += 'values (' + ', '.join(['?' for i in values]) + ')'
+
+    return g.db.execute(query, values)
+
+
 def connect_db():
     return sqlite3.connect(app.config['DATABASE'])
 
@@ -60,14 +72,10 @@ def add_component():
     if not session.get('logged_in'):
         abort(401)
     slug = request.form['name'].lower().replace(' ', '_')
-    query = 'insert into components (slug, name, value, weight)' + \
-        ' values (?, ?, ?, ?)'
-    g.db.execute(
-        query,
-        [
-            slug, request.form['name'], int(request.form['value']),
-            float(request.form['weight'])]
-        )
+    fields = ['slug', 'name', 'value', 'weight']
+    values = [slug, request.form['name'], int(request.form['value']),
+              float(request.form['weight'])]
+    build_insert_cursor('components', fields, values)
     g.db.commit()
     flash('Component "' + request.form['name'] + '" was successfully created')
     return redirect(url_for('show_components'))
@@ -86,17 +94,6 @@ def show_junk():
             'used_for_crafting': 'yes' if row[8] else 'no'}
         entries.append(entry)
     return render_template('show_junk.html', entries=entries)
-
-
-def get_flag_from_form(form, key):
-    return 1 if (key in form) and (form[key] == 'on') else 0
-
-
-def build_insert_cursor(table, fields, values):
-    query = 'insert into ' + table + ' (' + ', '.join(fields) + ') '
-    query += 'values (' + ', '.join(['?' for i in fields]) + ')'
-
-    return g.db.execute(query, values)
 
 
 @app.route('/add_junk', methods=['POST'])

@@ -65,3 +65,14 @@ class FalloutJunkTestCase(unittest.TestCase):
         rv = self.app.post('/add_junk', data=payload)
         assert rv.status == '302 FOUND'
         assert get_redirected_path(rv.headers['location']) == '/junk'
+
+    def test_post_add_component__302_all_fields(self):
+        payload = {
+            'name': 'Lead',
+            'value': 1,
+            'weight': 0.3,
+        }
+        self.login('admin', 'buttslol')
+        rv = self.app.post('/add_component', data=payload)
+        assert rv.status == '302 FOUND'
+        assert get_redirected_path(rv.headers['location']) == '/components'
