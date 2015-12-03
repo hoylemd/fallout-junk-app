@@ -40,7 +40,7 @@ def after_request(exception):
 
 @app.route('/')
 def index():
-    return redirect(url_for(''))
+    return redirect(url_for('show_junk'))
 
 
 @app.route('/components')
@@ -88,6 +88,10 @@ def show_junk():
     return render_template('show_junk.html', entries=entries)
 
 
+def get_flag_from_form(form, key):
+    return 1 if (key in form) and (form[key] == 'on') else 0
+
+
 @app.route('/add_junk', methods=['POST'])
 def add_junk():
     if not session.get('logged_in'):
@@ -97,8 +101,8 @@ def add_junk():
     query = 'insert into junk (' + fields + ')  values (?, ?, ?, ?, ?, ?, ?, ?)'
 
     slug = request.form['name'].lower().replace(' ', '_')
-    craftable = 1 if getattr(request.form, 'craftable', 'off') == 'on' else 0
-    used_for_crafting = 1 if getattr(request.form, 'used_for_crafting', 'off') == 'on' else 0
+    craftable = get_flag_from_form(request.form, 'craftable')
+    used_for_crafting = get_flag_from_form(request.form, 'used_for_crafting')
 
     g.db.execute(
         query,
