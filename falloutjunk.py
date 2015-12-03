@@ -92,30 +92,30 @@ def get_flag_from_form(form, key):
     return 1 if (key in form) and (form[key] == 'on') else 0
 
 
+def build_insert_cursor(table, fields, values):
+    query = 'insert into (' + ', '.join(fields) + ') ' + \
+            'values (' + ', '.join(['?' for i in fields]) + ')'
+
+    return g.db.execute(query, values)
+
+
 @app.route('/add_junk', methods=['POST'])
 def add_junk():
     if not session.get('logged_in'):
         abort(401)
-    fields = 'slug, name, value, weight, components_value, ' + \
-             'components_weight, craftable, used_for_crafting'
-    query = 'insert into junk (' + fields + ')  values (?, ?, ?, ?, ?, ?, ?, ?)'
+    fields = ['slug', 'name', 'value', 'weight', 'components_value',
+              'components_weight', 'craftable', 'used_for_crafting']
 
     slug = request.form['name'].lower().replace(' ', '_')
     craftable = get_flag_from_form(request.form, 'craftable')
     used_for_crafting = get_flag_from_form(request.form, 'used_for_crafting')
+    values = [
+        slug, request.form['name'], int(request.form['value']),
+        float(request.form['weight']), int(request.form['components_value']),
+        float(request.form['components_weight']), craftable, used_for_crafting]
 
-    g.db.execute(
-        query,
-        [
-            slug,
-            request.form['name'],
-            int(request.form['value']),
-            float(request.form['weight']),
-            int(request.form['components_value']),
-            float(request.form['components_weight']),
-            craftable,
-            used_for_crafting
-        ])
+    build_insert_cursor('junk', fields, values)
+
     g.db.commit()
     flash('Junk "' + request.form['name'] + '" was successfully created')
     return redirect(url_for('show_junk'))
