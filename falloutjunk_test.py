@@ -81,3 +81,8 @@ class FalloutJunkTestCase(unittest.TestCase):
         rv = self.app.get('/components')
         assert rv.status == '200 OK'
         # need to load and check fixtures
+
+    def test_get_junk__200(self):
+        rv = self.app.get('/junk')
+        assert rv.status == '200 OK'
+        # need to load and check fixtures

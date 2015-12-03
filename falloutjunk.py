@@ -96,7 +96,7 @@ def add_component():
 
 @app.route('/junk')
 def show_junk():
-    cursor = g.db.execute('select * from junk order by id desc;')
+    cursor = build_select_cursor('junk', order_by='id desc')
     entries = []
     for row in cursor.fetchall():
         entry = {
