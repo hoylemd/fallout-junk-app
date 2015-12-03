@@ -97,7 +97,7 @@ def add_junk():
     if not session.get('logged_in'):
         abort(401)
     fields = 'slug, name, value, weight, components_value, ' + \
-            'components_weight, craftable, used_for_crafting'
+             'components_weight, craftable, used_for_crafting'
     query = 'insert into junk (' + fields + ')  values (?, ?, ?, ?, ?, ?, ?, ?)'
 
     slug = request.form['name'].lower().replace(' ', '_')
