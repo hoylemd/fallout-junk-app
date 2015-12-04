@@ -35,12 +35,6 @@ def flag(value):
 
 
 # Helper functions
-def parse_optional(form, key, dictionary, force_value=None):
-    if key in form:
-        dictionary[key] = form[key] if force_value is None else force_value
-    return dictionary
-
-
 def build_insert_cursor(table, fields):
     """
     sets up a db cursor to insert into the given table the give fields
@@ -72,14 +66,6 @@ def build_select_cursor(table, fields=None, where=None, order_by=None):
     query += ';'
 
     return g.db.execute(query)
-
-
-# validation functions
-def missing_required_fields(form, fields):
-    for field in fields:
-        if field not in form:
-            return True
-    return False
 
 
 # app setup functions
@@ -129,21 +115,28 @@ def show_components():
 
 @app.route('/add_component', methods=['POST'])
 def add_component():
-    # set ecceptable and required fields
-    required_fields = ['name', 'value', 'weight']
+    # define fields
+    fields = [Field('name', str), Field('value', int), Field('weight', float)]
 
     # check for erroneous requests
     if not session.get('logged_in'):
         abort(401)
-    if missing_required_fields(request.form, required_fields):
+
+    values = {}
+    # parse the request form
+    try:
+        for field in fields:
+            # flags are special
+            if field.type_func == flag:
+                if field.name in request.form:
+                    values[field.name] = 1
+            elif field.required or field.name in request.form:
+                values[field.name] = field.type_func(request.form[field.name])
+    except (ValueError, KeyError):
         abort(422)
 
-    # build the values dictionary
-    values = {}
-    values['slug'] = request.form['name'].lower().replace(' ', '_')
-    values['name'] = str(request.form['name'])
-    values['value'] = int(request.form['value'])
-    values['weight'] = float(request.form['value'])
+    # calculate computed values
+    values['slug'] = values['name'].lower().replace(' ', '_')
 
     # update the database
     build_insert_cursor('components', values)
@@ -171,27 +164,31 @@ def show_junk():
 
 @app.route('/add_junk', methods=['POST'])
 def add_junk():
-    # set ecceptable and required fields
-    required_fields = ['name', 'value', 'weight']
-    optional_fields = ['components_value', 'components_weight']
-    flags = ['craftable', 'used_for_crafting']
+    # define fields
+    fields = [
+        Field('name', str), Field('value', int), Field('weight', float),
+        Field('components_value', int, False),
+        Field('components_weight', float, False),
+        Field('craftable', flag), Field('used_for_crafting', flag)]
 
     # check for erroneous requests
     if not session.get('logged_in'):
         abort(401)
-    if missing_required_fields(request.form, required_fields):
-        abort(422)
 
     # build the values dictionary
     values = {}
-    values['slug'] = request.form['name'].lower().replace(' ', '_')
-    values['name'] = str(request.form['name'])
-    values['value'] = int(request.form['value'])
-    values['weight'] = float(request.form['value'])
-    for field in optional_fields:
-        values = parse_optional(request.form, field, values)
-    for field in flags:
-        values = parse_optional(request.form, field, values, force_value=1)
+    try:
+        for field in fields:
+            # flags are special
+            if field.type_func == flag:
+                if field.name in request.form:
+                    values[field.name] = 1
+            elif field.required or field.name in request.form:
+                values[field.name] = field.type_func(request.form[field.name])
+    except (ValueError, KeyError):
+        abort(422)
+
+    values['slug'] = values['name'].lower().replace(' ', '_')
 
     # update the database
     build_insert_cursor('junk', values)
