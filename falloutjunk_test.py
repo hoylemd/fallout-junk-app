@@ -46,7 +46,7 @@ class FalloutJunkTestCase(unittest.TestCase):
         payload = {
             'name': 'Lead',
             'value': 1,
-            'weight': 0.3,
+            'weight': 0.3
         }
         self.login('admin', 'buttslol')
         rv = self.app.post('/add_component', data=payload)
@@ -56,7 +56,7 @@ class FalloutJunkTestCase(unittest.TestCase):
     def test_create_component__422_missing_name(self):
         payload = {
             'value': 1,
-            'weight': 0.3,
+            'weight': 0.3
         }
         self.login('admin', 'buttslol')
         rv = self.app.post('/add_component', data=payload)
@@ -109,7 +109,7 @@ class FalloutJunkTestCase(unittest.TestCase):
     def test_create_junk__422_missing_name(self):
         payload = {
             'value': 1,
-            'weight': 0.3,
+            'weight': 0.3
         }
         self.login('admin', 'buttslol')
         rv = self.app.post('/add_junk', data=payload)
