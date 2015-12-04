@@ -12,12 +12,20 @@ PASSWORD = 'buttslol'
 
 
 # Helper functions
-def get_flag_from_form(form, key):
-    return 1 if (key in form) and (form[key] == 'on') else 0
+def parse_optional(form, key, dictionary, force_value=None):
+    if key in form:
+        dictionary[key] = form[key] if force_value is None else force_value
+    return dictionary
 
 
-def build_insert_cursor(table, fields, values):
-    query = 'insert into ' + table + ' (' + ', '.join(fields) + ') '
+def build_insert_cursor(table, fields):
+    columns = []
+    values = []
+    for key, value in fields.iteritems():
+        columns.append(key)
+        values.append(value)
+
+    query = 'insert into ' + table + ' (' + ', '.join(columns) + ') '
     query += 'values (' + ', '.join(['?' for i in values]) + ')'
     query += ';'
 
@@ -91,16 +99,27 @@ def show_components():
 
 @app.route('/add_component', methods=['POST'])
 def add_component():
+    # set ecceptable and required fields
+    required_fields = ['name', 'value', 'weight']
+
+    # check for erroneous requests
     if not session.get('logged_in'):
         abort(401)
-    if missing_required_fields(request.form, ['name', 'value', 'weight']):
+    if missing_required_fields(request.form, required_fields):
         abort(422)
-    slug = request.form['name'].lower().replace(' ', '_')
-    fields = ['slug', 'name', 'value', 'weight']
-    values = [slug, request.form['name'], int(request.form['value']),
-              float(request.form['weight'])]
-    build_insert_cursor('components', fields, values)
+
+    # build the values dictionary
+    values = {}
+    values['slug'] = request.form['name'].lower().replace(' ', '_')
+    values['name'] = str(request.form['name'])
+    values['value'] = int(request.form['value'])
+    values['weight'] = float(request.form['value'])
+
+    # update the database
+    build_insert_cursor('components', values)
     g.db.commit()
+
+    # feedback
     flash('Component "' + request.form['name'] + '" was successfully created')
     return redirect(url_for('show_components'))
 
@@ -122,22 +141,33 @@ def show_junk():
 
 @app.route('/add_junk', methods=['POST'])
 def add_junk():
+    # set ecceptable and required fields
+    required_fields = ['name', 'value', 'weight']
+    optional_fields = ['components_value', 'components_weight']
+    flags = ['craftable', 'used_for_crafting']
+
+    # check for erroneous requests
     if not session.get('logged_in'):
         abort(401)
-    fields = ['slug', 'name', 'value', 'weight', 'components_value',
-              'components_weight', 'craftable', 'used_for_crafting']
+    if missing_required_fields(request.form, required_fields):
+        abort(422)
 
-    slug = request.form['name'].lower().replace(' ', '_')
-    craftable = get_flag_from_form(request.form, 'craftable')
-    used_for_crafting = get_flag_from_form(request.form, 'used_for_crafting')
-    values = [
-        slug, request.form['name'], int(request.form['value']),
-        float(request.form['weight']), int(request.form['components_value']),
-        float(request.form['components_weight']), craftable, used_for_crafting]
+    # build the values dictionary
+    values = {}
+    values['slug'] = request.form['name'].lower().replace(' ', '_')
+    values['name'] = str(request.form['name'])
+    values['value'] = int(request.form['value'])
+    values['weight'] = float(request.form['value'])
+    for field in optional_fields:
+        values = parse_optional(request.form, field, values)
+    for field in flags:
+        values = parse_optional(request.form, field, values, force_value=1)
 
-    build_insert_cursor('junk', fields, values)
-
+    # update the database
+    build_insert_cursor('junk', values)
     g.db.commit()
+
+    # feedback
     flash('Junk "' + request.form['name'] + '" was successfully created')
     return redirect(url_for('show_junk'))
 

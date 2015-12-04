@@ -9,6 +9,11 @@ def location_header_points_to(response, path):
     return location[location.rfind('/'):] == path
 
 
+class FalloutJunkHelperUnitTestCase(unittest.TestCase):
+    # TODO: need some unit tests for the helpers
+    pass
+
+
 class FalloutJunkTestCase(unittest.TestCase):
     # helper methods
     def setUp(self):
@@ -57,16 +62,12 @@ class FalloutJunkTestCase(unittest.TestCase):
         rv = self.app.post('/add_component', data=payload)
         assert rv.status == '422 UNPROCESSABLE ENTITY'
 
-    def test_get_components__200(self):
+    def test_list_components__200(self):
         rv = self.app.get('/components')
         assert rv.status == '200 OK'
         # need to load and check fixtures
 
-    def test_get_junk__200_OK(self):
-        rv = self.app.get('/junk')
-        assert rv.status == '200 OK'
-
-    def test_post_add_junk__401_not_authenticated(self):
+    def test_create_junk__401_not_authenticated(self):
         payload = {
             'name': '10lb Weight',
             'value': 2,
@@ -94,7 +95,18 @@ class FalloutJunkTestCase(unittest.TestCase):
         assert rv.status == '302 FOUND'
         assert location_header_points_to(rv, '/junk')
 
-    def test_get_junk__200(self):
+    def test_post_add_junk__302_minimum_fields(self):
+        payload = {
+            'name': '10lb Weight',
+            'value': 2,
+            'weight': 10
+        }
+        self.login('admin', 'buttslol')
+        rv = self.app.post('/add_junk', data=payload)
+        assert rv.status == '302 FOUND'
+        assert location_header_points_to(rv, '/junk')
+
+    def test_list_junk__200(self):
         rv = self.app.get('/junk')
         assert rv.status == '200 OK'
         # need to load and check fixtures
