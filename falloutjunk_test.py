@@ -106,6 +106,15 @@ class FalloutJunkTestCase(unittest.TestCase):
         assert rv.status == '302 FOUND'
         assert location_header_points_to(rv, '/junk')
 
+    def test_create_junk__422_missing_name(self):
+        payload = {
+            'value': 1,
+            'weight': 0.3,
+        }
+        self.login('admin', 'buttslol')
+        rv = self.app.post('/add_junk', data=payload)
+        assert rv.status == '422 UNPROCESSABLE ENTITY'
+
     def test_list_junk__200(self):
         rv = self.app.get('/junk')
         assert rv.status == '200 OK'
