@@ -35,6 +35,27 @@ def flag(value):
 
 
 # Helper functions
+def parse_request_form(form, fields):
+    """
+    Parses a request form into a values dict according to a fields spec
+
+    form(request form): the form from the flask request object
+    fields(array of Fields): the fields specification.
+    """
+    values = {}
+    try:
+        for field in fields:
+            if field.type_func == flag:
+                if field.name in form:
+                    values[field.name] = 1
+            elif field.required or field.name in form:
+                values[field.name] = field.type_func(form[field.name])
+    except (ValueError, KeyError):
+        abort(422)
+
+    return values
+
+
 def build_insert_cursor(table, fields):
     """
     sets up a db cursor to insert into the given table the give fields
@@ -122,20 +143,7 @@ def add_component():
     if not session.get('logged_in'):
         abort(401)
 
-    values = {}
-    # parse the request form
-    try:
-        for field in fields:
-            # flags are special
-            if field.type_func == flag:
-                if field.name in request.form:
-                    values[field.name] = 1
-            elif field.required or field.name in request.form:
-                values[field.name] = field.type_func(request.form[field.name])
-    except (ValueError, KeyError):
-        abort(422)
-
-    # calculate computed values
+    values = parse_request_form(request.form, fields)
     values['slug'] = values['name'].lower().replace(' ', '_')
 
     # update the database
@@ -175,19 +183,7 @@ def add_junk():
     if not session.get('logged_in'):
         abort(401)
 
-    # build the values dictionary
-    values = {}
-    try:
-        for field in fields:
-            # flags are special
-            if field.type_func == flag:
-                if field.name in request.form:
-                    values[field.name] = 1
-            elif field.required or field.name in request.form:
-                values[field.name] = field.type_func(request.form[field.name])
-    except (ValueError, KeyError):
-        abort(422)
-
+    values = parse_request_form(request.form, fields)
     values['slug'] = values['name'].lower().replace(' ', '_')
 
     # update the database
