@@ -80,7 +80,7 @@ class FalloutJunkTestCase(unittest.TestCase):
         rv = self.app.post('/add_junk', data=payload)
         assert rv.status == '401 UNAUTHORIZED'
 
-    def test_post_add_junk__302_all_fields(self):
+    def test_create_junk__302_all_fields(self):
         payload = {
             'name': '10lb Weight',
             'value': 2,
@@ -95,7 +95,7 @@ class FalloutJunkTestCase(unittest.TestCase):
         assert rv.status == '302 FOUND'
         assert location_header_points_to(rv, '/junk')
 
-    def test_post_add_junk__302_minimum_fields(self):
+    def test_create_junk__302_minimum_fields(self):
         payload = {
             'name': '10lb Weight',
             'value': 2,
