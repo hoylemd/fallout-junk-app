@@ -1,3 +1,4 @@
+from collections import namedtuple
 import sqlite3
 from flask import Flask, g, render_template, session, abort, request, \
     redirect,  url_for, flash
@@ -10,6 +11,28 @@ SECRET_KEY = 'marhmallows'
 USERNAME = 'admin'
 PASSWORD = 'buttslol'
 
+# define Field namedtuple
+Field = namedtuple('Field', 'name type_func required')
+Field.__new__.__defaults__ = (True,)
+"""
+type_func determines the expected type for that field
+integer: int
+float: float
+string: str
+boolean: flag
+"""
+
+
+def flag(value):
+    """
+    Use this as the type_func in a Field tuple for flag-type fields
+    It doesn't actually get used for field parsing though
+    """
+    if value == 'on' or value is True or value == 1:
+        return 1
+    else:
+        return None
+
 
 # Helper functions
 def parse_optional(form, key, dictionary, force_value=None):
@@ -19,8 +42,15 @@ def parse_optional(form, key, dictionary, force_value=None):
 
 
 def build_insert_cursor(table, fields):
+    """
+    sets up a db cursor to insert into the given table the give fields
+
+    table(string): name of the table to insert into
+    fields(dict): column name mapped to the value to insert
+    """
     columns = []
     values = []
+
     for key, value in fields.iteritems():
         columns.append(key)
         values.append(value)
