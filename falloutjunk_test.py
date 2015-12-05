@@ -73,7 +73,14 @@ class FalloutJunkTestCase(unittest.TestCase):
         assert rv.status == '422 UNPROCESSABLE ENTITY'
 
     def test_create_component__422_string_in_weight(self):
-        pass
+        payload = {
+            'name': 'Lead',
+            'value': 1,
+            'weight': 'zero-point-three'
+        }
+        self.login('admin', 'buttslol')
+        rv = self.app.post('/add_component', data=payload)
+        assert rv.status == '422 UNPROCESSABLE ENTITY'
 
     def test_list_components__200(self):
         rv = self.app.get('/components')
