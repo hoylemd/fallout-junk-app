@@ -122,20 +122,7 @@ def index():
     return redirect(url_for('show_junk'))
 
 
-@app.route('/components')
-def show_components():
-    cursor = build_select_cursor('components', order_by='id desc')
-    entries = []
-    for row in cursor.fetchall():
-        entry = {
-            'slug': row[1], 'name': row[2], 'value': row[3], 'weight': row[4],
-            'ratio': row[3] / row[4]}
-        entries.append(entry)
-    return render_template('show_components.html', entries=entries)
-
-
-@app.route('/add_component', methods=['POST'])
-def add_component():
+def create_component(request):
     # define fields
     fields = [Field('name', str), Field('value', int), Field('weight', float)]
 
@@ -156,7 +143,26 @@ def add_component():
 
     # feedback
     flash('Component "' + request.form['name'] + '" was successfully created')
-    return redirect(url_for('show_components'))
+    return redirect(url_for('components'))
+
+
+def read_components(request):
+    cursor = build_select_cursor('components', order_by='id desc')
+    entries = []
+    for row in cursor.fetchall():
+        entry = {
+            'slug': row[1], 'name': row[2], 'value': row[3], 'weight': row[4],
+            'ratio': row[3] / row[4]}
+        entries.append(entry)
+    return render_template('show_components.html', entries=entries)
+
+
+@app.route('/components', methods=['GET', 'POST'])
+def components():
+    if request.method == 'GET':
+        return read_components(request)
+    elif request.method == 'POST':
+        return create_component(request)
 
 
 @app.route('/junk')
@@ -214,7 +220,7 @@ def login():
         else:
             session['logged_in'] = True
             flash('You were logged in')
-            return redirect(url_for('show_components'))
+            return redirect(url_for('components'))
 
     return render_template('login.html', error=error)
 
@@ -223,7 +229,7 @@ def login():
 def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
-    return redirect(url_for('show_components'))
+    return redirect(url_for('components'))
 
 if __name__ == '__main__':
     app.run()

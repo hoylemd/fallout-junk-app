@@ -49,7 +49,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'weight': 0.3
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_component', data=payload)
+        rv = self.app.post('/components', data=payload)
         assert rv.status == '302 FOUND'
         assert location_header_points_to(rv, '/components')
 
@@ -59,7 +59,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'weight': 0.3
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_component', data=payload)
+        rv = self.app.post('/components', data=payload)
         assert rv.status == '422 UNPROCESSABLE ENTITY'
 
     def test_create_component__422_string_in_value(self):
@@ -69,7 +69,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'weight': 0.3
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_component', data=payload)
+        rv = self.app.post('/components', data=payload)
         assert rv.status == '422 UNPROCESSABLE ENTITY'
 
     def test_create_component__422_string_in_weight(self):
@@ -79,7 +79,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'weight': 'zero-point-three'
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_component', data=payload)
+        rv = self.app.post('/components', data=payload)
         assert rv.status == '422 UNPROCESSABLE ENTITY'
 
     def test_create_component__413_name_too_long(self):
@@ -89,7 +89,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'weight': 0.3
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_component', data=payload)
+        rv = self.app.post('/components', data=payload)
         assert rv.status == '413 REQUEST ENTITY TOO LARGE'
 
     def test_list_components__200(self):
