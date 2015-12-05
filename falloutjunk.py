@@ -144,6 +144,10 @@ def add_component():
         abort(401)
 
     values = parse_request_form(request.form, fields)
+
+    if len(values['name']) > 64:
+        abort(413)
+
     values['slug'] = values['name'].lower().replace(' ', '_')
 
     # update the database
@@ -184,6 +188,10 @@ def add_junk():
         abort(401)
 
     values = parse_request_form(request.form, fields)
+
+    if len(values['name']) > 64:
+        abort(413)
+
     values['slug'] = values['name'].lower().replace(' ', '_')
 
     # update the database

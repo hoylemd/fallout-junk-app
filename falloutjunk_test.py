@@ -82,6 +82,16 @@ class FalloutJunkTestCase(unittest.TestCase):
         rv = self.app.post('/add_component', data=payload)
         assert rv.status == '422 UNPROCESSABLE ENTITY'
 
+    def test_create_component__413_name_too_long(self):
+        payload = {
+            'name': 'Lead' * 17,  # > 64 long
+            'value': 1,
+            'weight': 0.3
+        }
+        self.login('admin', 'buttslol')
+        rv = self.app.post('/add_component', data=payload)
+        assert rv.status == '413 REQUEST ENTITY TOO LARGE'
+
     def test_list_components__200(self):
         rv = self.app.get('/components')
         assert rv.status == '200 OK'
@@ -155,6 +165,16 @@ class FalloutJunkTestCase(unittest.TestCase):
         self.login('admin', 'buttslol')
         rv = self.app.post('/add_junk', data=payload)
         assert rv.status == '422 UNPROCESSABLE ENTITY'
+
+    def test_create_junk__413_name_too_long(self):
+        payload = {
+            'name': '10lb Weight' * 6,  # > 64 long
+            'value': 2,
+            'weight': 10
+        }
+        self.login('admin', 'buttslol')
+        rv = self.app.post('/add_junk', data=payload)
+        assert rv.status == '413 REQUEST ENTITY TOO LARGE'
 
     def test_list_junk__200(self):
         rv = self.app.get('/junk')
