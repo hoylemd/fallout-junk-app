@@ -135,6 +135,27 @@ class FalloutJunkTestCase(unittest.TestCase):
         rv = self.app.post('/add_junk', data=payload)
         assert rv.status == '422 UNPROCESSABLE ENTITY'
 
+    def test_create_junk__422_string_in_value(self):
+        payload = {
+            'name': '10lb Weight',
+            'value': 'two',
+            'weight': 10
+        }
+        self.login('admin', 'buttslol')
+        rv = self.app.post('/add_junk', data=payload)
+        assert rv.status == '422 UNPROCESSABLE ENTITY'
+
+    def test_create_junk__422_type_error_in_optional(self):
+        payload = {
+            'name': '10lb Weight',
+            'value': 'two',
+            'weight': 10,
+            'components_value': 'a lot'
+        }
+        self.login('admin', 'buttslol')
+        rv = self.app.post('/add_junk', data=payload)
+        assert rv.status == '422 UNPROCESSABLE ENTITY'
+
     def test_list_junk__200(self):
         rv = self.app.get('/junk')
         assert rv.status == '200 OK'
