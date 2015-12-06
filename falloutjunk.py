@@ -119,7 +119,7 @@ def after_request(exception):
 
 @app.route('/')
 def index():
-    return redirect(url_for('show_junk'))
+    return redirect(url_for('junk'))
 
 
 def create_component(request):
@@ -165,23 +165,7 @@ def components():
         return create_component(request)
 
 
-@app.route('/junk')
-def show_junk():
-    cursor = build_select_cursor('junk', order_by='id desc')
-    entries = []
-    for row in cursor.fetchall():
-        entry = {
-            'slug': row[1], 'name': row[2], 'value': row[3], 'weight': row[4],
-            'ratio': row[3] / row[4], 'components_value': row[5],
-            'components_weight': row[6], 'components_ratio': row[5] / row[6],
-            'craftable': 'yes' if row[7] else 'no',
-            'used_for_crafting': 'yes' if row[8] else 'no'}
-        entries.append(entry)
-    return render_template('show_junk.html', entries=entries)
-
-
-@app.route('/add_junk', methods=['POST'])
-def add_junk():
+def create_junk(request):
     # define fields
     fields = [
         Field('name', str), Field('value', int), Field('weight', float),
@@ -206,7 +190,29 @@ def add_junk():
 
     # feedback
     flash('Junk "' + request.form['name'] + '" was successfully created')
-    return redirect(url_for('show_junk'))
+    return redirect(url_for('junk'))
+
+
+def list_junk(request):
+    cursor = build_select_cursor('junk', order_by='id desc')
+    entries = []
+    for row in cursor.fetchall():
+        entry = {
+            'slug': row[1], 'name': row[2], 'value': row[3], 'weight': row[4],
+            'ratio': row[3] / row[4], 'components_value': row[5],
+            'components_weight': row[6], 'components_ratio': row[5] / row[6],
+            'craftable': 'yes' if row[7] else 'no',
+            'used_for_crafting': 'yes' if row[8] else 'no'}
+        entries.append(entry)
+    return render_template('show_junk.html', entries=entries)
+
+
+@app.route('/junk', methods=['GET', 'POST'])
+def junk():
+    if request.method == 'GET':
+        return list_junk(request)
+    elif request.method == 'POST':
+        return create_junk(request)
 
 
 @app.route('/login', methods=['GET', 'POST'])

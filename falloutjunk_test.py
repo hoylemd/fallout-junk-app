@@ -107,7 +107,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'craftable': 'on',
             'used_for_crafting': 'off'
         }
-        rv = self.app.post('/add_junk', data=payload)
+        rv = self.app.post('/junk', data=payload)
         assert rv.status == '401 UNAUTHORIZED'
 
     def test_create_junk__302_all_fields(self):
@@ -121,7 +121,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'used_for_crafting': 'off'
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_junk', data=payload)
+        rv = self.app.post('/junk', data=payload)
         assert rv.status == '302 FOUND'
         assert location_header_points_to(rv, '/junk')
 
@@ -132,7 +132,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'weight': 10
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_junk', data=payload)
+        rv = self.app.post('/junk', data=payload)
         assert rv.status == '302 FOUND'
         assert location_header_points_to(rv, '/junk')
 
@@ -142,7 +142,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'weight': 0.3
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_junk', data=payload)
+        rv = self.app.post('/junk', data=payload)
         assert rv.status == '422 UNPROCESSABLE ENTITY'
 
     def test_create_junk__422_string_in_value(self):
@@ -152,7 +152,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'weight': 10
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_junk', data=payload)
+        rv = self.app.post('/junk', data=payload)
         assert rv.status == '422 UNPROCESSABLE ENTITY'
 
     def test_create_junk__422_type_error_in_optional(self):
@@ -163,7 +163,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'components_value': 'a lot'
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_junk', data=payload)
+        rv = self.app.post('/junk', data=payload)
         assert rv.status == '422 UNPROCESSABLE ENTITY'
 
     def test_create_junk__413_name_too_long(self):
@@ -173,7 +173,7 @@ class FalloutJunkTestCase(unittest.TestCase):
             'weight': 10
         }
         self.login('admin', 'buttslol')
-        rv = self.app.post('/add_junk', data=payload)
+        rv = self.app.post('/junk', data=payload)
         assert rv.status == '413 REQUEST ENTITY TOO LARGE'
 
     def test_list_junk__200(self):
