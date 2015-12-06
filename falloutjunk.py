@@ -154,7 +154,7 @@ def read_components(request):
             'slug': row[1], 'name': row[2], 'value': row[3], 'weight': row[4],
             'ratio': row[3] / row[4]}
         entries.append(entry)
-    return render_template('show_components.html', entries=entries)
+    return render_template('components.html', entries=entries)
 
 
 @app.route('/components', methods=['GET', 'POST'])
@@ -204,7 +204,7 @@ def list_junk(request):
             'craftable': 'yes' if row[7] else 'no',
             'used_for_crafting': 'yes' if row[8] else 'no'}
         entries.append(entry)
-    return render_template('show_junk.html', entries=entries)
+    return render_template('junk.html', entries=entries)
 
 
 @app.route('/junk', methods=['GET', 'POST'])
